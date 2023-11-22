@@ -1,5 +1,4 @@
 
-import e from 'express';
 import User from '../models/user.model.js';
 import { hashing } from '../utils/hashingMiddleware.js';
 import { comparePasswords } from '../utils/hashingMiddleware.js';
@@ -34,9 +33,7 @@ export const signupController = async (req, res, next) => {
 };
 
 
-
-
-
+// signinController
 export const signinController = async (req, res, next) => {
     const { email, password } = req.body;
 
@@ -49,8 +46,6 @@ export const signinController = async (req, res, next) => {
             });
         }
 
-        // Exclude the 'password' property from existingUser
-        const { password: hashedPassword, ...rest } = existingUser._doc;
 
         const isPasswordValid = await comparePasswords(password, existingUser.password);
 
@@ -62,7 +57,11 @@ export const signinController = async (req, res, next) => {
             return res.status(200).json({
                 message: "Login successful",
                 success: true,
-                existingUser: rest
+                existingUser: {
+                    name : existingUser.name,
+                    email : existingUser.email,
+                    id : existingUser._id
+                }
             });
         } else {
             return res.status(401).json({
@@ -75,5 +74,34 @@ export const signinController = async (req, res, next) => {
     }
 };
 
+
+// googleAuthController
+export const googleController = async (req, res, next) => {
+    const user = await User.findOne({ email: req.body.email })
+    if (user) {
+        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+        res.cookie('access_token', token, { httpOnly: true }, { maxAge: 60 * 60 * 1000 })
+
+        return res.status(200).json({
+            message: "Login successful",
+            success: true,
+            user: {
+                name : user.name,
+                email : user.email,
+                id : user._id,
+            }
+        });
+    } else {
+        const genratedPassword = Math.random().toString(36).slice(-8)
+        const hashedPassword = hashing(genratedPassword);
+        const newUser = new User({
+            name: req.body.name,
+            email: req.body.email,
+            password: hashedPassword,
+            profilePicture: req.body.photo
+        })
+        await newUser.save();
+    }
+}
 
 
