@@ -3,7 +3,8 @@ import mongoose from 'mongoose'
 import dotenv from 'dotenv'
 import userRoutes from '../api/routes/user.route.js'
 import authRoutes from '../api/routes/auth.route.js'
-
+import cookieParser from 'cookie-parser'
+import path from 'path'
 //configs
 dotenv.config()
 
@@ -24,12 +25,22 @@ app.listen(3000, () => {
     console.log('server is running on port 3000!')
 })
 
+
+// deployment app
+const __dirname = path.resolve()
+app.use(express.static(path.join(__dirname, '/client/dist')))
+app.get('*', (req, res) => {
+    res.send(path.join(__dirname, 'client', 'dist', 'index.html'))
+})
+
 // allow json as input on backend
 app.use(express.json())
+app.use(cookieParser())
 
 // routes
-app.use('/api/user', userRoutes)
 app.use('/api/auth', authRoutes)
+app.use('/api/user', userRoutes)
+
 
 
 

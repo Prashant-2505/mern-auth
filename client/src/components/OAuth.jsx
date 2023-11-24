@@ -3,9 +3,12 @@ import { GoogleAuthProvider, signInWithPopup, getAuth } from 'firebase/auth';
 import { app } from '../../firebase';
 import { useDispatch } from 'react-redux';
 import { signInSuccess, signInFailure } from '../redux/user/userSlice';
+import { useNavigate } from 'react-router-dom';
 
 const OAuth = () => {
     const dispatch = useDispatch();
+
+    const navigate = useNavigate()
 
     const handleGoogleClick = async () => {
         try {
@@ -31,6 +34,8 @@ const OAuth = () => {
             // Check if the request was successful
             if (res.ok) {
                 const data = await res.json();
+                alert(data.message)
+                navigate('/')
                 dispatch(signInSuccess(data));
             } else {
                 // Handle server errors

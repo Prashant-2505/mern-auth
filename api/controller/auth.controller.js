@@ -57,10 +57,11 @@ export const signinController = async (req, res, next) => {
             return res.status(200).json({
                 message: "Login successful",
                 success: true,
-                existingUser: {
-                    name : existingUser.name,
-                    email : existingUser.email,
-                    id : existingUser._id
+                user: {
+                    name: existingUser.name,
+                    email: existingUser.email,
+                    id: existingUser._id,
+                    profilePicture: existingUser.profilePicture
                 }
             });
         } else {
@@ -86,9 +87,10 @@ export const googleController = async (req, res, next) => {
             message: "Login successful",
             success: true,
             user: {
-                name : user.name,
-                email : user.email,
-                id : user._id,
+                name: user.name,
+                email: user.email,
+                id: user._id,
+                profilePicture: user.profilePicture
             }
         });
     } else {
@@ -103,5 +105,14 @@ export const googleController = async (req, res, next) => {
         await newUser.save();
     }
 }
+
+
+// signoutController
+export const signoutController = async (req, res) => {
+    res.clearCookie('access_token').status(200).json({
+        success: true,
+        message: 'sign out successfully'
+    })
+};
 
 
